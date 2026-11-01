@@ -1,0 +1,8 @@
+dist
+node_modules
+.tools
+src-tauri/target
+.taste-skill
+.impeccable/review
+package-lock.json
+test-results

@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-01T05:07:54Z",
+  "title": "Design System: Gik",
+  "extensions": {
+    "shadows": [
+      {
+        "name": "menu-overlay",
+        "value": "0 8px 24px #0002",
+        "purpose": "Transient menus only."
+      },
+      {
+        "name": "modal-overlay",
+        "value": "0 20px 64px #0004",
+        "purpose": "Modal dialogs over the workbench."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease",
+        "value": "cubic-bezier(0.23, 1, 0.32, 1)",
+        "purpose": "Declared CSS easing variable; no current transition consumes it."
+      },
+      {
+        "name": "spinner",
+        "value": "spin 1s linear infinite",
+        "purpose": "Loading feedback using a full rotation."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "animation: none !important; transition: none !important; scroll-behavior: auto !important",
+        "purpose": "Applied to all elements and pseudo-elements when prefers-reduced-motion is reduce."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "compact-desktop",
+        "value": "1150px",
+        "purpose": "Maximum width: tighter surrounding spacing; persisted list widths remain clamped to available space."
+      },
+      {
+        "name": "narrow-desktop",
+        "value": "850px",
+        "purpose": "Maximum width: icon sidebar and stacked history with its vertical resize separator hidden; Changes retain their resizable split."
+      },
+      {
+        "name": "short-window",
+        "value": "760px",
+        "purpose": "Maximum height: reduce sidebar secondary content and grouping space."
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Compact primary action with theme-bound colors and visible keyboard focus.",
+      "html": "<button class=\"ds-primary\">Commit changes</button>",
+      "css": ".ds-primary { font: 600 13px 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif; display: inline-flex; align-items: center; justify-content: center; min-height: 28px; padding: 4px 10px; border: 1px solid transparent; border-radius: var(--radius, 6px); background: var(--accent, #255fc7); color: var(--accent-ink, #fff); cursor: pointer; white-space: nowrap; } .ds-primary:hover { filter: brightness(0.95); } .ds-primary:active { filter: brightness(0.95); } .ds-primary:focus-visible { outline: 2px solid var(--focus, #3275d6); outline-offset: 2px; } .ds-primary:disabled { opacity: 0.45; cursor: default; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Mac-inspired craft with native Windows behavior",
+    "overview": "Gik uses compact neutral panels, restrained corners, clear type, and precise alignment. The native titlebar belongs to the operating system. The workbench keeps repository state readable through repeated lists, dividers, selected rows, and a continuous content sheet. Light and dark themes share the same hierarchy and follow the OS by default.",
+    "keyCharacteristics": [
+      "Neutral frame around a bordered content sheet.",
+      "Compact UI with readable secondary metadata.",
+      "Blue for selection, focus, and primary action; semantic color for Git state.",
+      "Immediate keyboard actions and restrained motion.",
+      "Resizable Changes and History list/detail panes with independently persisted widths, pointer dragging, and keyboard resizing."
+    ],
+    "rules": [],
+    "dos": [
+      "Do preserve native Windows titlebar, shortcuts, focus, and resizing behavior.",
+      "Do use paired semantic tokens across light and dark themes.",
+      "Do retain keyboard access, visible focus, forced colors, reduced motion, and non-color state indicators."
+    ],
+    "donts": [
+      "Don't use code fonts for ordinary interface text.",
+      "Don't add decorative color, panel shadows, raster illustrations, or oversized display typography to the workbench.",
+      "Don't animate keyboard selection or navigation.",
+      "Don't replace native window chrome with imitation macOS window controls."
+    ]
+  }
+}

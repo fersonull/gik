@@ -1,0 +1,27 @@
+name: Verify
+on:
+  push:
+    branches: [dev, 'feature/**', 'fix/**', 'chore/**']
+  pull_request:
+    branches: [dev]
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - run: npm ci
+      - run: npm run format:check
+      - run: cargo fmt --manifest-path src-tauri/Cargo.toml --check
+      - run: npm test
+      - run: cargo test --manifest-path src-tauri/Cargo.toml --no-default-features
+      - run: npm run build
+      - run: npm run test:e2e
+      - run: cargo check --manifest-path src-tauri/Cargo.toml
+      - run: npm audit --audit-level=moderate

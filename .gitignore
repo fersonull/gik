@@ -1,0 +1,10 @@
+node_modules/
+dist/
+src-tauri/target/
+.tools/
+.env*
+*.pem
+.taste-skill/inspect/
+.impeccable/review/
+test-results/
+playwright-report/

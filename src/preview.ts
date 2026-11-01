@@ -92,12 +92,12 @@ index 5e9ab12..74c8201 100644
 @@ -12,13 +12,18 @@ export function RepositorySidebar() {
    const { repository, branches } = useRepository();
    const [filter, setFilter] = useState('');
- 
+${' '}
 -  const visibleBranches = branches;
 +  const visibleBranches = branches.filter((branch) =>
 +    branch.name.toLowerCase().includes(filter.toLowerCase())
 +  );
- 
+${' '}
    return (
      <nav aria-label="Repository">
 +      <BranchSearch value={filter} onChange={setFilter} />

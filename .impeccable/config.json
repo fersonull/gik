@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "inter",
+        "createdAt": "2026-11-02T16:13:33.931Z",
+        "reason": "Agent decision: bundled Inter Variable intentionally implements the user-requested macOS-like typography on Windows; recorded in DESIGN.md and visually reviewed in both themes."
+      }
+    ]
+  }
+}

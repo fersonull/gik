@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-01T05:07:54Z",
+  "generatedAt": "2026-11-02T16:08:05Z",
   "title": "Design System: Gik",
   "extensions": {
     "shadows": [
@@ -11,37 +11,87 @@
       },
       {
         "name": "modal-overlay",
-        "value": "0 20px 64px #0004",
+        "value": "0 24px 72px #0004",
         "purpose": "Modal dialogs over the workbench."
       }
     ],
     "motion": [
       {
+        "purpose": "Shared ease-out for dialog, menu, drawer, disclosure, press, and pointer-driven view feedback.",
         "name": "ease",
-        "value": "cubic-bezier(0.23, 1, 0.32, 1)",
-        "purpose": "Declared CSS easing variable; no current transition consumes it."
+        "value": "cubic-bezier(0.23, 1, 0.32, 1)"
       },
       {
+        "purpose": "Declared fast duration token; dialog dismissal and press transforms use this duration as literal values.",
+        "name": "motion-fast",
+        "value": "140ms"
+      },
+      {
+        "purpose": "Declared panel duration token; dialog entrance and drawer transforms use this duration as literal values.",
+        "name": "motion-panel",
+        "value": "220ms"
+      },
+      {
+        "purpose": "Pointer-triggered dialog entrance through Web Animations; command palette opts out.",
+        "name": "dialog-enter",
+        "value": "220ms; opacity 0 to 1; translateY(8px) scale(.97) to translateY(0) scale(1)"
+      },
+      {
+        "purpose": "Pointer-triggered dismissal before removing the dialog.",
+        "name": "dialog-exit",
+        "value": "140ms; opacity 1 to 0; translateY(0) scale(1) to translateY(4px) scale(.98)"
+      },
+      {
+        "purpose": "Eligible controls only; excludes virtualized data controls and caption controls, and excludes row actions from press scaling.",
+        "name": "button-feedback",
+        "value": "background-color 120ms, border-color 120ms, transform 140ms; pointer active scale(0.97)"
+      },
+      {
+        "purpose": "Open menu feedback; branch popover originates at top left, other menus at top right.",
+        "name": "menu-enter",
+        "value": "opacity 180ms, transform 180ms; translateY(-4px) scale(0.97) to rest"
+      },
+      {
+        "purpose": "Bottom drawer reveal and hide.",
+        "name": "drawer",
+        "value": "opacity 180ms, transform 220ms, display 220ms allow-discrete; translateY(12px) to rest"
+      },
+      {
+        "purpose": "File-group disclosure preserves a readable relationship between heading and contents.",
+        "name": "file-group",
+        "value": "grid-template-rows 180ms, opacity 140ms; chevron transform 160ms"
+      },
+      {
+        "purpose": "Pointer-triggered Changes, History, and collection entrances; keyboard navigation is immediate.",
+        "name": "pointer-view-enter",
+        "value": "opacity 160ms, transform 160ms; translateY(3px) to rest"
+      },
+      {
+        "purpose": "Thumb movement on the Settings switch.",
+        "name": "setting-toggle",
+        "value": "transform 160ms; translateX(14px) when checked"
+      },
+      {
+        "purpose": "Loading feedback while interface motion is enabled.",
         "name": "spinner",
-        "value": "spin 1s linear infinite",
-        "purpose": "Loading feedback using a full rotation."
+        "value": "spin 1s linear infinite"
       },
       {
-        "name": "reduced-motion",
-        "value": "animation: none !important; transition: none !important; scroll-behavior: auto !important",
-        "purpose": "Applied to all elements and pseudo-elements when prefers-reduced-motion is reduce."
+        "purpose": "Persistent Settings switch or reduced-motion preference disables CSS motion and the spinner. Dialog Web Animations check the same conditions. Keyboard input bypasses dialog, menu, drawer, disclosure, and view entrance motion.",
+        "name": "motion-off",
+        "value": "animation: none !important; transition: none !important; scroll-behavior: auto !important"
       }
     ],
     "breakpoints": [
       {
         "name": "compact-desktop",
         "value": "1150px",
-        "purpose": "Maximum width: tighter surrounding spacing; persisted list widths remain clamped to available space."
+        "purpose": "Maximum width: tighter surrounding spacing, icon-only toolbar actions, and narrower branch picker; persisted list widths remain clamped to available space."
       },
       {
         "name": "narrow-desktop",
         "value": "850px",
-        "purpose": "Maximum width: icon sidebar and stacked history with its vertical resize separator hidden; Changes retain their resizable split."
+        "purpose": "Maximum width: icon sidebar and stacked history with a 45% list row (200px minimum), hiding the vertical resize separator; Changes retain their resizable split."
       },
       {
         "name": "short-window",
@@ -57,30 +107,33 @@
       "refersTo": "button-primary",
       "description": "Compact primary action with theme-bound colors and visible keyboard focus.",
       "html": "<button class=\"ds-primary\">Commit changes</button>",
-      "css": ".ds-primary { font: 600 13px 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif; display: inline-flex; align-items: center; justify-content: center; min-height: 28px; padding: 4px 10px; border: 1px solid transparent; border-radius: var(--radius, 6px); background: var(--accent, #255fc7); color: var(--accent-ink, #fff); cursor: pointer; white-space: nowrap; } .ds-primary:hover { filter: brightness(0.95); } .ds-primary:active { filter: brightness(0.95); } .ds-primary:focus-visible { outline: 2px solid var(--focus, #3275d6); outline-offset: 2px; } .ds-primary:disabled { opacity: 0.45; cursor: default; }"
+      "css": ".ds-primary { font: 600 13px -apple-system, BlinkMacSystemFont, 'Inter Variable', 'Segoe UI', sans-serif; display: inline-flex; align-items: center; justify-content: center; min-height: 28px; padding: 4px 10px; border: 1px solid transparent; border-radius: var(--radius, 6px); background: var(--accent, #255fc7); color: var(--accent-ink, #fff); cursor: pointer; white-space: nowrap; } .ds-primary:hover { filter: brightness(0.95); } .ds-primary:focus-visible { outline: 2px solid var(--focus, #3275d6); outline-offset: 2px; } .ds-primary:disabled { opacity: 0.45; cursor: default; } :host-context([data-motion='on']) .ds-primary { transition: background-color 120ms var(--ease, cubic-bezier(0.23, 1, 0.32, 1)), border-color 120ms var(--ease, cubic-bezier(0.23, 1, 0.32, 1)), transform 140ms var(--ease, cubic-bezier(0.23, 1, 0.32, 1)); } :host-context([data-motion='on'][data-input='pointer']) .ds-primary:active { transform: scale(0.97); } @media (prefers-reduced-motion: reduce) { .ds-primary { transition: none !important; transform: none !important; } }"
     }
   ],
   "narrative": {
     "northStar": "Mac-inspired craft with native Windows behavior",
-    "overview": "Gik uses compact neutral panels, restrained corners, clear type, and precise alignment. The native titlebar belongs to the operating system. The workbench keeps repository state readable through repeated lists, dividers, selected rows, and a continuous content sheet. Light and dark themes share the same hierarchy and follow the OS by default.",
+    "overview": "Gik combines Mac-inspired craft with Windows behavior: locally bundled Inter Variable, compact neutral panels, precise alignment, and integrated themeable Windows caption controls. F11 hides the entire toolbar. A continuous bordered sheet keeps repository state readable. Light and dark themes share the same topology and follow the OS by default. Purposeful motion is enabled by default on occasional pointer-driven surfaces, with a persistent Settings switch and reduced-motion override.",
     "keyCharacteristics": [
       "Neutral frame around a bordered content sheet.",
-      "Compact UI with readable secondary metadata.",
-      "Blue for selection, focus, and primary action; semantic color for Git state.",
-      "Immediate keyboard actions and restrained motion.",
-      "Resizable Changes and History list/detail panes with independently persisted widths, pointer dragging, and keyboard resizing."
+      "Local Inter Variable on Windows with compact typography and readable metadata.",
+      "Blue selection and semantic Git state, with a separate five-color graph palette for branch continuity.",
+      "Integrated Windows caption controls and fullscreen toolbar hiding.",
+      "Purposeful default motion on occasional surfaces; immediate keyboard navigation and data.",
+      "Resizable Changes and History panes with independently persisted widths, pointer dragging, and keyboard resizing.",
+      "Roomier dialog forms and a searchable branch popover."
     ],
     "rules": [],
     "dos": [
-      "Do preserve native Windows titlebar, shortcuts, focus, and resizing behavior.",
+      "Do keep caption controls themeable while preserving native Windows window actions, shortcuts, focus, and resizing behavior.",
       "Do use paired semantic tokens across light and dark themes.",
-      "Do retain keyboard access, visible focus, forced colors, reduced motion, and non-color state indicators."
+      "Do retain keyboard access, visible focus, forced colors, reduced motion, and non-color state indicators.",
+      "Do honor the persistent motion switch and reduced-motion preference while keeping keyboard navigation and data immediate."
     ],
     "donts": [
       "Don't use code fonts for ordinary interface text.",
       "Don't add decorative color, panel shadows, raster illustrations, or oversized display typography to the workbench.",
       "Don't animate keyboard selection or navigation.",
-      "Don't replace native window chrome with imitation macOS window controls."
+      "Don't turn the integrated Windows caption controls into imitation macOS traffic lights."
     ]
   }
 }

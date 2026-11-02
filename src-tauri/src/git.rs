@@ -15,6 +15,15 @@ use std::{
 };
 
 pub type Result<T> = std::result::Result<T, String>;
+pub fn display_path(path: &Path) -> PathBuf {
+    let text = path.to_string_lossy();
+    if let Some(rest) = text.strip_prefix(r"\\?\") {
+        if rest.as_bytes().get(1) == Some(&b':') {
+            return PathBuf::from(rest);
+        }
+    }
+    path.to_path_buf()
+}
 const OUTPUT_LIMIT: usize = 32 * 1024 * 1024;
 
 #[derive(Clone)]
@@ -365,6 +374,15 @@ impl Repository {
         let mut child = command
             .spawn()
             .map_err(|e| format!("Cannot start Git: {e}"))?;
+        let group = match crate::process::ProcessGroup::attach(&child) {
+            Ok(group) => group,
+            Err(error) => {
+                kill_process_tree(child.id());
+                let _ = child.kill();
+                let _ = child.wait();
+                return Err(format!("Cannot track Git subprocesses safely: {error}"));
+            }
+        };
         let stdout = child.stdout.take().ok_or("Missing Git output")?;
         let stderr = child.stderr.take().ok_or("Missing Git error output")?;
         let out = thread::spawn(move || capture(stdout));
@@ -377,15 +395,22 @@ impl Repository {
             }
             std::io::Result::Ok(())
         });
+        let mut exit_status = None;
         let status = loop {
             if self.cancel.load(Ordering::Relaxed) {
-                kill_process_tree(child.id());
+                group.terminate();
                 let _ = child.kill();
             }
-            match child.try_wait().map_err(|e| e.to_string())? {
-                Some(status) => break status,
-                None => thread::sleep(Duration::from_millis(20)),
+            if exit_status.is_none() {
+                exit_status = child.try_wait().map_err(|e| e.to_string())?;
             }
+            // A detached hook child can retain pipes after Git exits; keep cancellation live.
+            if let Some(status) = exit_status {
+                if out.is_finished() && err.is_finished() && writer.is_finished() {
+                    break status;
+                }
+            }
+            thread::sleep(Duration::from_millis(20));
         };
         let (stdout, too_big) = out
             .join()
@@ -514,7 +539,7 @@ impl Repository {
         let operation = self.operation()?;
         operation.hash(&mut hash);
         Ok(Snapshot {
-            root: self.root.to_string_lossy().into(),
+            root: display_path(&self.root).to_string_lossy().into(),
             branch,
             head,
             upstream,

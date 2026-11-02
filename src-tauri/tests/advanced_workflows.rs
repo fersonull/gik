@@ -299,6 +299,55 @@ fn cancellation_terminates_a_running_git_hook_tree() {
     assert_eq!(git(dir.path(), &["rev-parse", "HEAD"]), before);
 }
 #[test]
+#[cfg(windows)]
+fn cancellation_remains_live_after_git_exits_with_inherited_pipes() {
+    use std::{sync::atomic::Ordering, time::Duration};
+    let (dir, repo) = fixture();
+    commit(dir.path(), &repo, "base");
+    fs::write(
+        repo.common.join("hooks/post-commit"),
+        "#!/bin/sh\nsleep 15 &\n",
+    )
+    .unwrap();
+    fs::write(dir.path().join("file.txt"), "changed").unwrap();
+    repo.execute(
+        &Action::Stage {
+            paths: vec!["file.txt".into()],
+        },
+        None,
+    )
+    .unwrap();
+    let runner = repo.clone();
+    let worker = std::thread::spawn(move || {
+        runner.execute(
+            &Action::Commit {
+                message: "Background hook".into(),
+                amend: false,
+                sign: false,
+            },
+            None,
+        )
+    });
+    let deadline = Instant::now() + Duration::from_secs(5);
+    while git(dir.path(), &["log", "-1", "--format=%s"]) != "Background hook" {
+        assert!(Instant::now() < deadline, "Commit did not finish");
+        std::thread::sleep(Duration::from_millis(20));
+    }
+    std::thread::sleep(Duration::from_millis(300));
+    assert!(
+        !worker.is_finished(),
+        "Fixture must retain a pipe after Git exits"
+    );
+    let cancelled = Instant::now();
+    repo.cancel.store(true, Ordering::Relaxed);
+    assert!(worker.join().unwrap().unwrap_err().contains("cancelled"));
+    assert!(cancelled.elapsed() < Duration::from_secs(5));
+    assert_eq!(
+        git(dir.path(), &["log", "-1", "--format=%s"]),
+        "Background hook"
+    );
+}
+#[test]
 fn stash_drop_rejects_reindexed_entries_even_when_the_top_stash_is_unchanged() {
     let (dir, repo) = fixture();
     commit(dir.path(), &repo, "base");

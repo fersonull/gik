@@ -74,15 +74,21 @@ const subjects = [
   'Add repository trust confirmation',
   'Initialize the desktop workbench',
 ];
-export const sampleCommits: Commit[] = subjects.map((subject, i) => ({
-  oid: (i === 0 ? snapshot.head : `${(0xb62f908 - i * 17331).toString(16)}${'9'.repeat(40)}`).slice(
-    0,
-    40,
-  ),
-  parents: i === 3 ? ['parent-a', 'parent-b'] : ['parent-a'],
-  subject,
+const previewOid = (index: number) =>
+  index === 0 ? snapshot.head : (0xb62f908 - index * 17331).toString(16).padEnd(40, '9');
+export const sampleCommits: Commit[] = Array.from({ length: 240 }, (_, i) => ({
+  oid: previewOid(i),
+  parents:
+    i === 239
+      ? []
+      : i === 3
+        ? [previewOid(4), previewOid(5)]
+        : i === 4
+          ? [previewOid(6)]
+          : [previewOid(i + 1)],
+  subject: subjects[i % subjects.length] + (i >= 10 ? ` (${Math.floor(i / 10) + 1})` : ''),
   author: ['Alex Morgan', 'Jamie Chen', 'Sam Rivera'][i % 3],
-  date: `2026-10-${31 - Math.floor(i / 2)}T10:30:00+08:00`,
+  date: new Date(Date.UTC(2026, 9, 31, 10) - i * 3600000).toISOString(),
   refs: i === 0 ? 'HEAD -> feature/workspace' : i === 3 ? 'origin/dev, dev' : '',
 }));
 export const sampleDiff = `diff --git a/src/components/RepositorySidebar.tsx b/src/components/RepositorySidebar.tsx
@@ -141,7 +147,8 @@ export async function previewCall<T>(command: string, args?: Record<string, unkn
       })),
     };
     if (request.kind === 'snapshot') return snapshot as T;
-    if (request.kind === 'history') return (request.skip ? [] : sampleCommits) as T;
+    if (request.kind === 'history')
+      return sampleCommits.slice(request.skip || 0, (request.skip || 0) + 200) as T;
     if (request.kind === 'diff') return sampleDiff as T;
     if (request.kind === 'file_history')
       return sampleCommits.map((c) => `${c.oid.slice(0, 7)} ${c.subject}`).join('\n') as T;

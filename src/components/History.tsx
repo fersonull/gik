@@ -174,13 +174,19 @@ export function History({
                     aria-hidden="true"
                   >
                     {Array.from({ length: graph.before }, (_, i) => (
-                      <path key={`b${i}`} d={`M${14 + i * 14} 0 V28`} className="graph-track" />
+                      <path
+                        key={`b${i}`}
+                        d={`M${14 + i * 14} 0 V28`}
+                        className="graph-track"
+                        style={{ stroke: `var(--graph-${graph.beforeColors[i]})` }}
+                      />
                     ))}
                     {graph.tracks.map((track) => (
                       <path
                         key={`track-${track.from}`}
                         d={`M${14 + track.from * 14} 28 C${14 + track.from * 14} 42 ${14 + track.to * 14} 42 ${14 + track.to * 14} 56`}
                         className="graph-track"
+                        style={{ stroke: `var(--graph-${track.color})` }}
                       />
                     ))}
                     {graph.targets.map((target, i) => (
@@ -188,12 +194,14 @@ export function History({
                         key={i}
                         d={`M${14 + graph.lane * 14} 28 C${14 + graph.lane * 14} 42 ${14 + target * 14} 42 ${14 + target * 14} 56`}
                         className="graph-edge"
+                        style={{ stroke: `var(--graph-${graph.targetColors[i]})` }}
                       />
                     ))}
                     <circle
                       cx={14 + graph.lane * 14}
                       cy="28"
                       r={commit.parents.length > 1 ? 4.5 : 3.5}
+                      style={{ stroke: `var(--graph-${graph.color})` }}
                     />
                   </svg>
                   <span className="commit-description">

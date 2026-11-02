@@ -24,11 +24,11 @@ export function CommandPalette({
     }
   }
   return (
-    <Modal title="Command palette" close={close}>
+    <Modal title="Command palette" close={close} motion={false}>
       <div className="palette-search">
         <Search size={17} />
         <input
-          autoFocus
+          data-autofocus
           role="combobox"
           aria-label="Search commands"
           aria-autocomplete="list"

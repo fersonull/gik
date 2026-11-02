@@ -86,6 +86,7 @@ test('has no serious accessibility violations in both themes and no window overf
     await page.getByRole('button', { name: 'Settings', exact: true }).click();
     await page.getByLabel('Appearance').selectOption(theme);
     await page.keyboard.press('Escape');
+    await expect(page.getByRole('dialog')).not.toBeVisible();
     const results = await new AxeBuilder({ page }).analyze();
     expect(
       results.violations.filter((v) => ['serious', 'critical'].includes(v.impact || '')),
@@ -101,15 +102,15 @@ test('has no serious accessibility violations in both themes and no window overf
 test('captures representative workspace screens', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByRole('heading', { name: 'Changes', exact: true })).toBeVisible();
-  await page.screenshot({ path: '.impeccable/review/desktop.png' });
+  await page.screenshot({ path: '.impeccable/review/desktop.png', animations: 'disabled' });
   await page.getByRole('button', { name: 'History', exact: true }).click();
   await expect(page.getByRole('listitem').first()).toBeVisible();
-  await page.screenshot({ path: '.impeccable/review/history.png' });
+  await page.screenshot({ path: '.impeccable/review/history.png', animations: 'disabled' });
   await page.getByRole('button', { name: 'Settings', exact: true }).click();
   await page.getByLabel('Appearance').selectOption('dark');
   await page.keyboard.press('Escape');
   await page.getByRole('button', { name: /^Changes/ }).click();
-  await page.screenshot({ path: '.impeccable/review/dark.png' });
+  await page.screenshot({ path: '.impeccable/review/dark.png', animations: 'disabled' });
   await page.setViewportSize({ width: 1024, height: 640 });
-  await page.screenshot({ path: '.impeccable/review/compact.png' });
+  await page.screenshot({ path: '.impeccable/review/compact.png', animations: 'disabled' });
 });

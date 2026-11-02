@@ -4,7 +4,6 @@ import {
   ArrowUp,
   ArrowDownToLine,
   Braces,
-  ChevronDown,
   CircleDot,
   Clock3,
   Command,
@@ -40,6 +39,9 @@ import { FormDialog, Modal } from './components/Modal';
 import { RebasePlanner } from './components/RebasePlanner';
 import { GitPrompt } from './components/GitPrompt';
 import { CommandPalette } from './components/CommandPalette';
+import { BranchPicker } from './components/BranchPicker';
+import { WindowControls } from './components/WindowControls';
+import { useWindowChrome } from './useWindowChrome';
 const Terminal = lazy(() =>
   import('./components/Terminal').then((module) => ({ default: module.Terminal })),
 );
@@ -58,6 +60,8 @@ export default function App() {
   const workbench = useWorkbench();
   const { active, snapshot, job, view, setView, act } = workbench;
   const [theme, setTheme] = useState(saved('theme', 'system'));
+  const [motion, setMotion] = useState(saved('motion', true));
+  const chrome = useWindowChrome(theme, workbench.setError);
   const [sidebar, setSidebar] = useState(true);
   const [drawer, setDrawer] = useState<'terminal' | 'log' | null>(null);
   const [terminalRepos, setTerminalRepos] = useState<string[]>([]);
@@ -72,6 +76,32 @@ export default function App() {
   const [drawerHeight, setDrawerHeight] = useState(saved('drawerHeight', 240));
   const [sidebarWidth, setSidebarWidth] = useState(saved('sidebarWidth', 208));
   const [creating, setCreating] = useState(false);
+  useEffect(() => {
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+    const apply = () => {
+      const enabled = motion && !reduced.matches;
+      document.documentElement.dataset.motion = enabled ? 'on' : 'off';
+      if (!enabled) document.getAnimations().forEach((animation) => animation.cancel());
+    };
+    apply();
+    save('motion', motion);
+    reduced.addEventListener('change', apply);
+    return () => reduced.removeEventListener('change', apply);
+  }, [motion]);
+  useEffect(() => {
+    const pointer = () => {
+      document.documentElement.dataset.input = 'pointer';
+    };
+    const keyboard = () => {
+      document.documentElement.dataset.input = 'keyboard';
+    };
+    document.addEventListener('pointerdown', pointer, true);
+    document.addEventListener('keydown', keyboard, true);
+    return () => {
+      document.removeEventListener('pointerdown', pointer, true);
+      document.removeEventListener('keydown', keyboard, true);
+    };
+  }, []);
   useEffect(() => {
     const closeMenus = (event: MouseEvent) => {
       const target = event.target as Element;
@@ -118,6 +148,14 @@ export default function App() {
   }, [workbench.notice]);
   useEffect(() => {
     function key(e: KeyboardEvent) {
+      if (e.key === 'F11') {
+        e.preventDefault();
+        if (!e.repeat) chrome.toggleFullscreen();
+      }
+      if (e.key === 'Escape' && chrome.fullscreen && !document.querySelector('dialog[open]')) {
+        e.preventDefault();
+        chrome.toggleFullscreen();
+      }
       if (e.ctrlKey && e.key.toLowerCase() === 'k') {
         e.preventDefault();
         setDialog((previous) => (previous === 'commands' ? null : 'commands'));
@@ -255,6 +293,8 @@ export default function App() {
   return (
     <div
       className="app-shell"
+      data-sidebar={sidebar ? 'expanded' : 'collapsed'}
+      data-fullscreen={chrome.fullscreen}
       style={
         {
           '--sidebar-width': `${sidebar ? sidebarWidth : 56}px`,
@@ -270,7 +310,7 @@ export default function App() {
         </div>
       )}
       <header className="app-toolbar">
-        <div className="wordmark">
+        <div className="wordmark" data-tauri-drag-region aria-label="Gik" title="Gik">
           <span className="gik-mark">
             <GitFork size={19} />
           </span>
@@ -278,11 +318,15 @@ export default function App() {
           <span className="product-caption">Git, in good order.</span>
         </div>
         <div className="toolbar-main">
-          <button className="branch-picker" disabled={!active} onClick={() => setView('branches')}>
-            <GitBranch size={14} />
-            <strong>{snapshot?.branch || 'No repository'}</strong>
-            <ChevronDown size={13} />
-          </button>
+          <BranchPicker
+            repository={active?.id}
+            branch={snapshot?.branch || ''}
+            revision={workbench.revision}
+            trusted={!!active?.trusted}
+            busy={!!job}
+            act={act}
+            manage={() => setView('branches')}
+          />
           {snapshot && (
             <span className="tracking-info">
               <ArrowUp size={11} />
@@ -291,8 +335,9 @@ export default function App() {
               {snapshot.behind}
             </span>
           )}
-          <div className="toolbar-spacer" />
+          <div className="toolbar-spacer" data-tauri-drag-region />
           <button
+            aria-label="Fetch"
             disabled={!active || !!job || !active.trusted}
             onClick={() =>
               void act({ kind: 'fetch', remote: snapshot?.upstream.split('/')[0] || 'origin' })
@@ -302,6 +347,7 @@ export default function App() {
             <span>Fetch</span>
           </button>
           <button
+            aria-label="Pull"
             disabled={!active || !!job || !active.trusted}
             onClick={() => void act({ kind: 'pull', rebase: false })}
           >
@@ -309,6 +355,7 @@ export default function App() {
             <span>Pull</span>
           </button>
           <button
+            aria-label="Push"
             disabled={!active || !!job || !active.trusted}
             onClick={() => void act({ kind: 'push', force: false })}
           >
@@ -332,6 +379,12 @@ export default function App() {
           >
             <PanelBottom size={16} />
           </button>
+          <WindowControls
+            maximized={chrome.maximized}
+            minimize={chrome.minimize}
+            toggleMaximize={chrome.toggleMaximize}
+            close={chrome.close}
+          />
         </div>
       </header>
       <aside className={`sidebar ${sidebar ? '' : 'collapsed'}`}>
@@ -340,7 +393,7 @@ export default function App() {
           {sidebar && (
             <div>
               <strong>{active ? nameOf(active.path) : 'Your workspace'}</strong>
-              <span>{active?.path || 'Local repositories'}</span>
+              <span title={active?.path}>{active?.path || 'Local repositories'}</span>
             </div>
           )}
           <button
@@ -401,7 +454,7 @@ export default function App() {
           >
             <Settings2 size={15} />
           </button>
-          {sidebar && <span>Gik 0.1</span>}
+          {sidebar && <span>Gik 0.2</span>}
           <button
             className="icon-button"
             aria-label={sidebar ? 'Collapse sidebar' : 'Expand sidebar'}
@@ -628,7 +681,9 @@ export default function App() {
                 <Clock3 size={13} />
                 Operation log<span>{workbench.logs.length}</span>
               </button>
-              <span className="drawer-path">{active?.path}</span>
+              <span className="drawer-path" title={active?.path}>
+                {active?.path}
+              </span>
               {drawer === 'terminal' && active && terminalRepos.includes(active.id) && (
                 <button
                   title="Terminate shell"
@@ -652,7 +707,11 @@ export default function App() {
                 .filter((id) => workbench.repositories.some((r) => r.id === id))
                 .map((id) => (
                   <Suspense key={id} fallback={<p className="drawer-empty">Starting terminal…</p>}>
-                    <Terminal repository={id} active={drawer === 'terminal' && id === active?.id} />
+                    <Terminal
+                      repository={id}
+                      active={drawer === 'terminal' && id === active?.id}
+                      motion={motion}
+                    />
                   </Suspense>
                 ))}
               {drawer === 'terminal' && !terminalRepos.includes(active?.id || '') && (
@@ -793,6 +852,22 @@ export default function App() {
                 <option value="dark">Dark</option>
               </select>
             </label>
+            <label className="setting-toggle">
+              <span>
+                <strong>Interface motion</strong>
+                <small>
+                  Smooth menus, dialogs, and panels. Turn off for performance. Respects reduced
+                  motion.
+                </small>
+              </span>
+              <input
+                type="checkbox"
+                role="checkbox"
+                aria-label="Interface motion"
+                checked={motion}
+                onChange={(e) => setMotion(e.target.checked)}
+              />
+            </label>
             <p>{gitVersion}</p>
             <p className="muted">
               Credentials, SSH, signing, and hooks use your installed Git configuration. Gik has no
@@ -800,7 +875,7 @@ export default function App() {
             </p>
             <p className="muted">
               Shortcuts: Ctrl O to open, Ctrl K for commands, Ctrl ` for terminal, Ctrl Enter to
-              commit, F5 to refresh.
+              commit, F5 to refresh, F11 for fullscreen.
             </p>
           </div>
         </Modal>
@@ -810,6 +885,8 @@ export default function App() {
       )}
       {(dialog === 'open' || dialog === 'clone' || dialog === 'init') && (
         <FormDialog
+          busy={creating}
+          error={workbench.error}
           title={
             dialog === 'open'
               ? 'Open repository'
@@ -823,7 +900,7 @@ export default function App() {
                   {
                     name: 'url',
                     label: 'Git URL',
-                    placeholder: 'HTTPS or SSH repository URL',
+                    placeholder: 'https://github.com/owner/repository.git',
                   },
                 ]
               : []),
@@ -847,6 +924,7 @@ export default function App() {
           }}
           submit={async (values) => {
             if (creating) return;
+            workbench.setError('');
             setCreating(true);
             try {
               const path =

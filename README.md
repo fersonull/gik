@@ -19,7 +19,7 @@ npm run desktop:build
 powershell -ExecutionPolicy Bypass -File scripts/desktop.ps1 build -DebugBuild
 ```
 
-Installers appear in `src-tauri/target/release/bundle/nsis/` (or `debug/bundle/nsis/`). Windows titlebars and snapping remain native. macOS/Linux source boundaries exist, but those platforms are not verified or packaged yet.
+Installers appear in `src-tauri/target/release/bundle/nsis/` (or `debug/bundle/nsis/`). Themed Windows caption controls share the app toolbar; dragging, resizing and maximize/restore use native window actions. macOS/Linux source boundaries exist, but those platforms are not verified or packaged yet.
 
 `npm run dev` opens a **read-only browser design preview** with explicitly labeled sample repository data. It cannot access the filesystem or execute Git. Desktop builds always use Rust and actual repositories.
 
@@ -40,7 +40,9 @@ Trust is required for mutations and terminal access. Reading a repository disabl
 
 ## Keyboard and appearance
 
-Ctrl O opens a repository; Ctrl K opens commands; Ctrl backtick toggles the terminal; F5 refreshes; Ctrl Enter submits the commit form. Arrow keys navigate changed files. Pane separators support arrow-key resizing. Settings provide system, light, and dark appearance.
+Ctrl O opens a repository; Ctrl K opens and focuses commands; Ctrl backtick toggles the terminal; F5 refreshes; Ctrl Enter submits the commit form. F11 toggles fullscreen and hides the toolbar and window controls. Escape exits fullscreen when no dialog is open. Arrow keys navigate changed files. Pane separators support arrow-key resizing.
+
+Settings provide system, light, and dark appearance. A bundled Inter Variable font gives Windows the requested Mac-like typography. Interface motion is enabled by default; turn it off in Settings for performance. System reduced motion always takes precedence. Keyboard navigation stays immediate. Branches switch directly from the searchable toolbar picker, and staged/unstaged groups collapse independently.
 
 ## Verification
 

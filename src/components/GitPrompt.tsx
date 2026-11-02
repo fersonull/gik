@@ -60,7 +60,6 @@ export function GitPrompt() {
           <label>
             {prompt.prompt}
             <input
-              autoFocus
               type={/password|passphrase|token/i.test(prompt.prompt) ? 'password' : 'text'}
               value={value}
               onChange={(e) => setValue(e.target.value)}

@@ -101,6 +101,9 @@ async fn open_repository(
     let path = repository.root.to_string_lossy().to_string();
     let mut repository = repository;
     repository.trusted = trusted.contains(&path);
+    let path = git::display_path(&repository.root)
+        .to_string_lossy()
+        .to_string();
     let is_trusted = repository.trusted;
     let id = state.next_id.fetch_add(1, Ordering::Relaxed).to_string();
     state
@@ -311,7 +314,7 @@ fn terminal_open(
     let mut command = CommandBuilder::new(shell);
     #[cfg(windows)]
     command.arg("-NoLogo");
-    command.cwd(&repo.root);
+    command.cwd(git::display_path(&repo.root));
     command.env("TERM", "xterm-256color");
     let child = pair
         .slave

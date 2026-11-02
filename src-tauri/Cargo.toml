@@ -1,6 +1,6 @@
 [package]
 name = "gik"
-version = "0.1.0"
+version = "0.2.0"
 description = "A precise Git workbench"
 edition = "2021"
 
@@ -31,3 +31,6 @@ tauri-build = { version = "2", optional = true , features = [] }
 
 [dev-dependencies]
 tempfile = "3"
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_Security", "Win32_System_JobObjects"] }

@@ -4,7 +4,15 @@ import { FitAddon } from '@xterm/addon-fit';
 import { listen } from '@tauri-apps/api/event';
 import { call, desktop } from '../api';
 import '@xterm/xterm/css/xterm.css';
-export function Terminal({ repository, active }: { repository: string; active: boolean }) {
+export function Terminal({
+  repository,
+  active,
+  motion,
+}: {
+  repository: string;
+  active: boolean;
+  motion: boolean;
+}) {
   const element = useRef<HTMLDivElement>(null);
   const terminal = useRef<XTerminal | null>(null);
   const fitRef = useRef<FitAddon | null>(null);
@@ -20,7 +28,7 @@ export function Terminal({ repository, active }: { repository: string; active: b
       screenReaderMode: true,
       fontFamily: 'Cascadia Code, Consolas, monospace',
       fontSize: 13,
-      cursorBlink: true,
+      cursorBlink: motion && !matchMedia('(prefers-reduced-motion: reduce)').matches,
       scrollback: 5000,
       allowProposedApi: false,
       theme: {
@@ -88,6 +96,15 @@ export function Terminal({ repository, active }: { repository: string; active: b
       xterm.dispose();
     };
   }, [repository]);
+  useEffect(() => {
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+    const apply = () => {
+      if (terminal.current) terminal.current.options.cursorBlink = motion && !reduced.matches;
+    };
+    apply();
+    reduced.addEventListener('change', apply);
+    return () => reduced.removeEventListener('change', apply);
+  }, [motion]);
   useEffect(() => {
     if (active) {
       requestAnimationFrame(() => {

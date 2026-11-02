@@ -1,5 +1,15 @@
 # Validation
 
+## Desktop experience update — 2026-11-03
+
+- Production build and optimized unsigned `0.2.0` NSIS installer pass. Packaged resources include WebView2Loader, the local LLVM runtime, and Inter's OFL license. Isolated installation, installed-app smoke, and uninstall pass.
+- Eight frontend tests and thirteen Microsoft Edge browser tests pass. Regressions cover history scrolling/pagination, unobstructed branch picker, disclosures, palette input focus/backdrop dismissal, fullscreen geometry, collapsed control alignment, persistent motion preference, and system reduced motion. Existing keyboard, pane persistence and light/dark axe checks pass.
+- Twenty-two real Git integration tests pass, including friendly path display without changing canonical storage, foreground hook cancellation, and cancellation after Git exits while a background hook child retains pipes. The 100,000-commit benchmark below belongs to the earlier acceptance run and was not rerun for this update.
+- Actual WebView2 verifies staging/commit, askpass, branch switches without navigation, undecorated themed chrome, maximize/restore/close, native fullscreen, palette focus, friendly paths and real PowerShell output. The harness waits for the shell prompt before entering commands.
+- Final visual review covers light, dark, compact, collapsed navigation, history, branch picker, Settings and repository forms. Disposition: ship. Static captures settle animations before inspection.
+- Design-taste inspector: zero failures; one warning for optional Cascadia Code not being installed. The declared system monospace fallback renders correctly; Inter Variable is bundled locally. Dependency audit reports zero known npm vulnerabilities.
+- Windows Snap Layout hover, physical Narrator/high contrast and multi-monitor scaling are still manual release checks. The installer remains unsigned. No claim is made that those checks passed.
+
 Verified on Windows on 2026-11-01. Git repositories used by automated tests are disposable fixtures, not the user's repositories.
 
 ## Passed
@@ -21,7 +31,7 @@ Verified on Windows on 2026-11-01. Git repositories used by automated tests are 
 - Physical Narrator use, Windows high-contrast calibration, multi-monitor DPI/text scaling at 100–200%, and real signing hardware.
 - Missing-Git installation guidance on a clean machine and missing-WebView2 bootstrap installation. This machine already has Git and WebView2.
 - Real HTTPS/SSH hosting credentials and provider-specific credential-manager behavior. Askpass was verified using a local hook challenge; network operations were tested against local Git remotes.
-- A future version-to-version upgrade. Same-version reinstall passed; no later application version exists yet.
+- A version-to-version upgrade over an existing user installation. The isolated `0.2.0` clean install does not verify migration of an existing workspace.
 - macOS, Linux, WSL, network shares, and Rust advisory-database audit were not verified.
 
 ## Operational limits

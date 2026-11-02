@@ -1,6 +1,15 @@
 use gik_core::git::{parse_status, Action, Repository};
 use std::{fs, path::Path};
 use tempfile::TempDir;
+#[test]
+fn friendly_paths_leave_canonical_storage_untouched() {
+    let path = std::path::PathBuf::from(r"\\?\C:\Dev\my repo");
+    assert_eq!(
+        gik_core::git::display_path(&path),
+        std::path::PathBuf::from(r"C:\Dev\my repo")
+    );
+    assert!(path.to_string_lossy().starts_with(r"\\?\"));
+}
 
 fn run(path: &Path, args: &[&str]) -> String {
     let output = std::process::Command::new("git")

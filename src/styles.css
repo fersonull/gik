@@ -1,6 +1,13 @@
 @import '@xterm/xterm/css/xterm.css';
+@font-face {
+  font-family: 'Inter Variable';
+  src: url('./assets/fonts/InterVariable.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
 :root {
-  font-family: 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter Variable', 'Segoe UI', sans-serif;
   font-size: 13px;
   color-scheme: light;
   --frame: #f5f5f7;
@@ -248,6 +255,8 @@ kbd {
   margin-left: auto;
 }
 .app-toolbar {
+  position: relative;
+  z-index: 10;
   grid-column: 1/-1;
   display: grid;
   grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
@@ -265,7 +274,7 @@ kbd {
 .wordmark > strong {
   font-size: 21px;
   font-weight: 650;
-  letter-spacing: -0.055em;
+  letter-spacing: -0.035em;
 }
 .gik-mark {
   display: flex;
@@ -1863,6 +1872,470 @@ kbd {
 }
 .bottom-drawer[hidden] {
   display: none;
+}
+
+/* Integrated window chrome shares the application's surfaces and appearance. */
+:root {
+  font-optical-sizing: auto;
+  font-synthesis: none;
+  --graph-0: #2863c7;
+  --graph-1: #23815a;
+  --graph-2: #9b6410;
+  --graph-3: #9850b3;
+  --graph-4: #b6426b;
+  --motion-fast: 140ms;
+  --motion-panel: 220ms;
+}
+:root[data-theme='dark'] {
+  --graph-0: #8bb4ff;
+  --graph-1: #85d1ac;
+  --graph-2: #e4bf76;
+  --graph-3: #c8a0e8;
+  --graph-4: #f09ebc;
+}
+.app-toolbar {
+  padding-right: 0;
+  isolation: isolate;
+}
+.wordmark {
+  height: 100%;
+  min-width: 0;
+  user-select: none;
+}
+.wordmark > * {
+  pointer-events: none;
+}
+.toolbar-main {
+  height: 100%;
+}
+.toolbar-spacer {
+  height: 100%;
+  min-width: 16px;
+}
+.window-controls {
+  height: 100%;
+  display: flex;
+  align-items: stretch;
+  flex: none;
+  margin-left: 8px;
+}
+.window-controls .window-control {
+  width: 44px;
+  height: 100%;
+  padding: 0;
+  min-height: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--ink);
+}
+.window-controls .window-control:hover {
+  background: var(--hover);
+}
+.window-controls .window-close:hover {
+  background: #c42b3c;
+  color: white;
+}
+.app-shell[data-fullscreen='true'] {
+  grid-template-rows: 0 minmax(0, 1fr) 28px;
+}
+.app-shell[data-fullscreen='true']:has(.preview-banner) {
+  grid-template-rows: 28px 0 minmax(0, 1fr) 28px;
+}
+.app-shell[data-fullscreen='true'] > .app-toolbar {
+  display: none;
+}
+.sidebar,
+.workspace {
+  grid-row: 2;
+}
+.statusbar {
+  grid-row: 3;
+}
+.app-shell:has(.preview-banner) > .sidebar,
+.app-shell:has(.preview-banner) > .workspace {
+  grid-row: 3;
+}
+.app-shell:has(.preview-banner) > .statusbar {
+  grid-row: 4;
+}
+.app-shell[data-sidebar='collapsed'] .wordmark {
+  justify-content: center;
+  padding: 0;
+}
+.app-shell[data-sidebar='collapsed'] .wordmark > strong {
+  display: none;
+}
+.sidebar-workspace strong {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.sidebar-workspace > div > span {
+  line-height: 1.5;
+}
+.sidebar-controls {
+  align-items: center;
+}
+.sidebar.collapsed .sidebar-controls {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  width: 100%;
+}
+.sidebar.collapsed .sidebar-controls > button:last-child {
+  margin-left: 0;
+}
+.drawer-path {
+  min-width: 0;
+  max-width: 45%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.history-list {
+  min-height: 0;
+  overflow: hidden;
+}
+.history-layout {
+  grid-template-rows: minmax(0, 1fr);
+}
+.commit-scroll {
+  min-height: 0;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+.commit-detail-heading h2 {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.commit-description > strong {
+  display: block;
+  white-space: nowrap;
+}
+.branch-picker-menu {
+  flex: 0 1 240px;
+  min-width: 0;
+  max-width: 280px;
+}
+.branch-picker-menu > .branch-picker {
+  display: flex;
+  justify-content: flex-start;
+  gap: 7px;
+  height: 32px;
+  padding: 0 8px;
+  max-width: 100%;
+  border-radius: 6px;
+}
+.branch-picker > strong {
+  min-width: 0;
+  font-size: 13px;
+}
+.branch-picker > svg {
+  flex: none;
+}
+.branch-picker-menu > .branch-popover {
+  left: 0;
+  right: auto;
+  top: calc(100% + 8px);
+  width: 320px;
+  max-height: 440px;
+  padding: 8px;
+  transform-origin: top left;
+}
+.branch-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px 10px;
+  color: var(--muted);
+}
+.branch-search input {
+  width: 100%;
+  background: var(--subtle);
+  padding: 8px;
+}
+.branch-options {
+  overflow: auto;
+  max-height: 280px;
+}
+.branch-options button {
+  width: 100%;
+  justify-content: flex-start;
+  gap: 8px;
+}
+.branch-options button > span {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
+}
+.branch-options button:disabled {
+  opacity: 1;
+  color: var(--muted);
+}
+.branch-hint {
+  padding: 10px 8px;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.branch-manage {
+  border-top: 1px solid var(--line) !important;
+  margin-top: 4px;
+  padding-top: 12px !important;
+}
+.file-group-toggle {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  min-height: 24px;
+  justify-content: flex-start;
+  gap: 6px;
+}
+.file-group-toggle:hover {
+  background: transparent;
+}
+.file-group-toggle svg {
+  transition: transform 160ms var(--ease);
+}
+.file-group-toggle[aria-expanded='false'] svg {
+  transform: rotate(-90deg);
+}
+.file-group-body {
+  display: grid;
+  grid-template-rows: 1fr;
+  opacity: 1;
+  transition:
+    grid-template-rows 180ms var(--ease),
+    opacity 140ms var(--ease);
+}
+.file-group-body[data-collapsed='true'] {
+  grid-template-rows: 0fr;
+  opacity: 0;
+}
+.file-group-contents {
+  min-height: 0;
+  overflow: hidden;
+}
+.modal {
+  width: min(520px, calc(100vw - 48px));
+  border-radius: 16px;
+  box-shadow: 0 24px 72px #0004;
+}
+.modal > header {
+  padding: 22px 24px 8px;
+  border-bottom: 0;
+  gap: 16px;
+}
+.modal > header h2 {
+  font-size: 17px;
+  line-height: 1.4;
+  letter-spacing: -0.025em;
+  overflow-wrap: anywhere;
+}
+.modal > header > .icon-button {
+  flex: none;
+  color: var(--muted);
+}
+.form-fields {
+  padding: 18px 24px 24px;
+  gap: 20px;
+}
+.form-fields label {
+  gap: 8px;
+  line-height: 1.45;
+}
+.form-fields input:not([type='checkbox']),
+.form-fields select {
+  min-height: 42px;
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: var(--subtle);
+}
+.form-fields textarea {
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: var(--subtle);
+}
+.modal footer {
+  padding: 16px 24px;
+  background: var(--subtle);
+}
+.modal footer button {
+  min-height: 32px;
+  padding: 6px 14px;
+}
+.modal-description {
+  padding-inline: 24px;
+}
+.form-fields .setting-toggle {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 20px;
+}
+.setting-toggle > span {
+  flex: 1;
+}
+.setting-toggle strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+}
+.setting-toggle small {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.5;
+  margin-top: 6px;
+}
+.form-fields .setting-toggle > input {
+  appearance: none;
+  width: 36px;
+  height: 22px;
+  min-height: 22px;
+  flex: none;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--hover);
+  position: relative;
+  cursor: pointer;
+}
+.setting-toggle > input::before {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 14px;
+  height: 14px;
+  background: var(--muted);
+  border-radius: 50%;
+  transition: transform 160ms var(--ease);
+}
+.setting-toggle > input:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.setting-toggle > input:checked::before {
+  transform: translateX(14px);
+  background: var(--accent-ink);
+}
+.palette-search {
+  padding: 12px 24px;
+}
+.palette-search input {
+  height: 34px;
+}
+.palette-results {
+  padding: 8px 12px 12px;
+}
+.palette-results button {
+  min-height: 40px;
+}
+
+/* Feedback and occasional surfaces move; virtualized data and keyboard actions do not. */
+:root[data-motion='on'] button:not(.commit-row, .file-select, .line-selector, .window-control) {
+  transition:
+    background-color 120ms var(--ease),
+    border-color 120ms var(--ease),
+    transform 140ms var(--ease);
+}
+:root[data-motion='on'][data-input='pointer']
+  button:not(.commit-row, .file-select, .line-selector, .row-action, .window-control):active {
+  transform: scale(0.97);
+}
+.menu-content {
+  transform-origin: top right;
+}
+:root[data-input='keyboard'] .file-group-body,
+:root[data-input='keyboard'] .file-group-toggle svg,
+:root[data-input='keyboard'] .menu[open] > .menu-content,
+:root[data-input='keyboard'] .bottom-drawer {
+  transition: none !important;
+}
+:root[data-motion='on'] .menu[open] > .menu-content {
+  transition:
+    opacity 180ms var(--ease),
+    transform 180ms var(--ease);
+}
+@starting-style {
+  :root[data-motion='on'] .menu[open] > .menu-content {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.97);
+  }
+}
+:root[data-motion='on'] .bottom-drawer {
+  transition:
+    opacity 180ms var(--ease),
+    transform 220ms var(--ease),
+    display 220ms allow-discrete;
+}
+.bottom-drawer[hidden] {
+  opacity: 0;
+  transform: translateY(12px);
+}
+@starting-style {
+  :root[data-motion='on'] .bottom-drawer:not([hidden]) {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+:root[data-motion='on'][data-input='pointer'] .workspace-content > .changes-layout,
+:root[data-motion='on'][data-input='pointer'] .workspace-content > .history-layout,
+:root[data-motion='on'][data-input='pointer'] .workspace-content > .collection {
+  transition:
+    opacity 160ms var(--ease),
+    transform 160ms var(--ease);
+}
+@starting-style {
+  :root[data-motion='on'][data-input='pointer'] .workspace-content > .changes-layout,
+  :root[data-motion='on'][data-input='pointer'] .workspace-content > .history-layout,
+  :root[data-motion='on'][data-input='pointer'] .workspace-content > .collection {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+}
+:root[data-motion='off'] *,
+:root[data-motion='off'] *::before,
+:root[data-motion='off'] *::after,
+:root[data-motion='off'] dialog::backdrop {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+}
+@media (max-width: 1150px) {
+  .toolbar-main > button > span {
+    display: none;
+  }
+  .toolbar-main > button {
+    width: 28px;
+    padding: 4px;
+  }
+  .branch-picker-menu {
+    flex-basis: 180px;
+  }
+}
+@media (max-width: 850px) {
+  .sidebar-controls {
+    display: grid;
+    justify-items: center;
+    gap: 8px;
+    width: 100%;
+  }
+  .sidebar-controls > button:last-child {
+    display: flex;
+    margin-left: 0;
+  }
+  .history-layout {
+    grid-template-rows: minmax(200px, 45%) minmax(0, 1fr);
+  }
+  .history-list {
+    max-height: none;
+  }
 }
 .palette-results button[aria-selected='true'] {
   background: var(--selected);

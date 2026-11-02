@@ -6,7 +6,7 @@
 
 web
 
-Desktop application on Windows 11 x64; later macOS and Linux. Native Windows titlebar and shortcuts.
+Desktop application on Windows 11 x64; later macOS and Linux. Integrated, theme-aware caption controls with native Windows window actions and shortcuts. F11 fullscreen hides the chrome.
 
 ## Stack
 
@@ -26,7 +26,7 @@ Broad Git workbench: changes, history, branches, tags, stashes, worktrees, remot
 
 ## Brand Commitments
 
-Working name Gik. macOS-inspired craft with Windows-native behavior. Light and dark themes, following the OS by default. Compact neutral panels and color reserved for meaningful state.
+Working name Gik. macOS-inspired craft with Windows-native behavior. Light and dark themes, following the OS by default. Mac-like Inter Variable typography. Rich, purposeful motion enabled by default with a persistent performance switch and reduced-motion support. Compact neutral panels and color reserved for meaningful state.
 
 ## Product Principles
 

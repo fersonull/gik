@@ -9,6 +9,7 @@ const git = (args) =>
   execFileSync('git', args, { cwd: fixture, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] });
 let app;
 let browser;
+let page;
 try {
   git(['init', '-b', 'dev']);
   git(['config', 'user.name', 'Native Fixture']);
@@ -18,6 +19,7 @@ try {
   writeFileSync(join(fixture, 'hello.txt'), 'first\n');
   git(['add', 'hello.txt']);
   git(['commit', '-m', 'Initial native fixture']);
+  git(['branch', 'feature/picker']);
   writeFileSync(join(fixture, 'hello.txt'), 'first\nsecond\n');
   const profile = resolve('.tools/native-webview');
   mkdirSync(profile, { recursive: true });
@@ -41,7 +43,6 @@ try {
     }
   }
   assert.ok(browser, 'Native WebView2 did not become available');
-  let page;
   for (let attempt = 0; attempt < 40; attempt++) {
     page = browser
       .contexts()
@@ -75,15 +76,74 @@ try {
   await page.getByRole('button', { name: 'Continue', exact: true }).click();
   await page.getByText('Working tree clean', { exact: true }).waitFor();
   assert.equal(git(['log', '-1', '--format=%s']).trim(), 'Commit from native Gik');
+  await page.getByRole('button', { name: /^Switch branch/ }).click();
+  await page.getByRole('button', { name: 'Switch to feature/picker', exact: true }).click();
+  await page.waitForFunction(
+    () => document.querySelector('.branch-picker strong')?.textContent === 'feature/picker',
+  );
+  assert.equal(git(['branch', '--show-current']).trim(), 'feature/picker');
+  await page.getByRole('heading', { name: 'Changes', exact: true }).waitFor();
+  await page.getByRole('button', { name: /^Switch branch/ }).click();
+  await page.getByRole('button', { name: 'Switch to dev', exact: true }).click();
+  await page.waitForFunction(
+    () => document.querySelector('.branch-picker strong')?.textContent === 'dev',
+  );
+  const decorated = await page.evaluate(() =>
+    window.__TAURI_INTERNALS__.invoke('plugin:window|is_decorated', { label: 'main' }),
+  );
+  assert.equal(decorated, false);
+  await page.getByRole('button', { name: 'Maximize window', exact: true }).click();
+  await page.getByRole('button', { name: 'Restore window', exact: true }).waitFor();
+  await page.getByRole('button', { name: 'Restore window', exact: true }).click();
+  await page.getByRole('button', { name: 'Maximize window', exact: true }).waitFor();
+  await page.keyboard.press('F11');
+  await page.waitForFunction(
+    () => document.querySelector('.app-shell')?.getAttribute('data-fullscreen') === 'true',
+  );
+  assert.equal(
+    await page.evaluate(() =>
+      window.__TAURI_INTERNALS__.invoke('plugin:window|is_fullscreen', { label: 'main' }),
+    ),
+    true,
+  );
+  await page.keyboard.press('F11');
+  await page.waitForFunction(
+    () => document.querySelector('.app-shell')?.getAttribute('data-fullscreen') === 'false',
+  );
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  await page.getByLabel('Appearance').selectOption('dark');
+  await page.keyboard.press('Escape');
+  await page.getByRole('button', { name: 'Open command palette', exact: true }).focus();
+  await page.keyboard.press('Control+k');
+  assert.equal(
+    await page
+      .getByRole('combobox', { name: 'Search commands' })
+      .evaluate((input) => document.activeElement === input),
+    true,
+  );
+  await page.keyboard.press('Escape');
   await page.getByRole('button', { name: 'History', exact: true }).click();
   await page.getByRole('heading', { name: 'Commit from native Gik', exact: true }).waitFor();
   await page.getByRole('button', { name: 'Toggle terminal', exact: true }).click();
   await page.locator('.xterm-helper-textarea').waitFor({ state: 'attached' });
+  await page.waitForFunction(() =>
+    /PS [A-Z]:\\/.test(document.querySelector('.xterm-accessibility')?.textContent || ''),
+  );
   await page.locator('.xterm-helper-textarea').focus();
   await page.keyboard.type("$marker = 'GIK_' + 'PTY_WORKS'; Write-Output $marker");
   await page.keyboard.press('Enter');
   await page.waitForFunction(() =>
     document.querySelector('.xterm-accessibility')?.textContent.includes('GIK_PTY_WORKS'),
+  );
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  await page.getByRole('checkbox', { name: 'Interface motion' }).uncheck();
+  assert.equal(await page.locator('html').getAttribute('data-motion'), 'off');
+  await page.keyboard.press('Escape');
+  await page.locator('.xterm-helper-textarea').focus();
+  await page.keyboard.type("$marker = 'GIK_' + 'MOTION_OFF'; Write-Output $marker");
+  await page.keyboard.press('Enter');
+  await page.waitForFunction(() =>
+    document.querySelector('.xterm-accessibility')?.textContent.includes('GIK_MOTION_OFF'),
   );
   const sessions = await page.evaluate(async () => {
     const api = window.__TAURI_INTERNALS__;
@@ -99,16 +159,43 @@ try {
   });
   assert.equal(sessions.branch, 'dev');
   assert.equal(sessions.clean, true);
+  assert.ok(!(await page.locator('.sidebar-workspace').innerText()).includes('\\\\?\\'));
+  assert.ok(
+    !(await page.locator('.xterm-accessibility').innerText()).includes(
+      'Microsoft.PowerShell.Core\\FileSystem::',
+    ),
+  );
   await page.getByRole('button', { name: 'Changes', exact: true }).click();
   mkdirSync('.impeccable/review', { recursive: true });
   await page.screenshot({ path: '.impeccable/review/native.png' });
   assert.deepEqual(errors, []);
+  await page.getByRole('button', { name: 'Close window', exact: true }).click();
+  await new Promise((resolve, reject) => {
+    if (app.exitCode !== null) {
+      resolve();
+      return;
+    }
+    const timer = setTimeout(
+      () => reject(new Error('Window close did not exit the application')),
+      5000,
+    );
+    app.once('exit', () => {
+      clearTimeout(timer);
+      resolve();
+    });
+  });
   console.log(
-    'Native smoke passed: real WebView2 → Rust IPC → Git stage/commit/history; authenticated askpass response; PTY output verified.',
+    'Native smoke passed: Git workflows, branch picker, themed integrated controls, maximize/restore/close, F11, palette focus, friendly paths, askpass and PTY output.',
   );
+} catch (error) {
+  if (page && !page.isClosed()) {
+    mkdirSync('.impeccable/review', { recursive: true });
+    await page.screenshot({ path: '.impeccable/review/native-failure.png' }).catch(() => {});
+  }
+  throw error;
 } finally {
   await browser?.close().catch(() => {});
-  if (app && !app.killed) {
+  if (app && !app.killed && app.exitCode === null) {
     try {
       execFileSync('taskkill', ['/PID', String(app.pid), '/T', '/F'], { stdio: 'ignore' });
     } catch {}
